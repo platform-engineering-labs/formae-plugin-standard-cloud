@@ -1,0 +1,53 @@
+# © 2026 Platform Engineering Labs Inc.
+# SPDX-License-Identifier: FSL-1.1-ALv2
+
+# Metapackage release pipeline. The Hub doesn't yet support
+# metapackages (no `kind` column on `plugin`, no metapackage path in
+# the registration wizard), so this repo dispatches the formae-actions
+# plugin-build workflow directly on every numeric tag push. When Hub
+# gains metapackage support, this workflow can be retired and the
+# Hub's webhook-driven dispatch path will take over (same as for
+# regular plugins).
+#
+# Inputs to `plugin-build.yml` mirror what the Hub would send for a
+# Hub-driven build, with a few caveats:
+#   - `build-id` / `attempt-id` are random UUIDs the Hub will fail to
+#     match against any DB row when `workflow_run.completed` lands.
+#     That's intentional: the Hub harmlessly ignores the event, the
+#     metapackage build proceeds and publishes to the orbital index
+#     out-of-band of the Hub catalog.
+#   - `originator` is hardcoded to platform.engineering. The build's
+#     `verify-originator` step rejects any opkg whose Originator
+#     doesn't match, so this can't be spoofed by a fork.
+
+name: release
+on:
+  push:
+    tags:
+      - '[0-9]*'
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ secrets.HUB_DISPATCH_PAT }}
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          BUILD_ID=$(uuidgen)
+          ATTEMPT_ID=$(uuidgen)
+          gh workflow run plugin-build.yml \
+            -R platform-engineering-labs/formae-actions \
+            --ref main \
+            -f plugin-name=standard-cloud \
+            -f plugin-repo="$GITHUB_REPOSITORY" \
+            -f tag="$TAG" \
+            -f version="$VERSION" \
+            -f head-sha="$GITHUB_SHA" \
+            -f build-id="$BUILD_ID" \
+            -f attempt-id="$ATTEMPT_ID" \
+            -f kind=metapackage \
+            -f originator=platform.engineering \
+            -f channel=stable
