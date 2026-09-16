@@ -15,14 +15,13 @@ publisher   = read("env:OPS_PUBLISHER")
 originator  = read("env:OPS_ORIGINATOR")
 license     = "FSL-1.1-ALv2"
 summary     = "Curated formae plugin set for hosted installations"
-description = "Metapackage that pulls in the plugin set available on hosted formae installations (aws, azure, gcp, k8s, auth-basic)."
+description = "Metapackage that pulls in the plugin set available on hosted formae installations (aws, azure, gcp, auth-basic)."
 
 requirements = new Listing<requirement.Requirement> {
-  new { name = "aws"        method = "depends" operator = "ANY" }
-  new { name = "azure"      method = "depends" operator = "ANY" }
-  new { name = "gcp"        method = "depends" operator = "ANY" }
-  new { name = "k8s"        method = "depends" operator = "ANY" }
-  new { name = "auth-basic" method = "depends" operator = "ANY" }
+  new { name = "aws"        method = "depends" operator = "EQ" version = semver.Version("0.1.17") }
+  new { name = "azure"      method = "depends" operator = "EQ" version = semver.Version("0.1.14") }
+  new { name = "gcp"        method = "depends" operator = "EQ" version = semver.Version("0.1.17") }
+  new { name = "auth-basic" method = "depends" operator = "EQ" version = semver.Version("0.1.0") }
 }
 
 metadata {

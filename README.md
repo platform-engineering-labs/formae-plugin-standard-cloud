@@ -5,24 +5,24 @@ Orbital metapackage naming the set of [formae](https://github.com/platform-engin
 - [aws](https://github.com/platform-engineering-labs/formae-plugin-aws)
 - [azure](https://github.com/platform-engineering-labs/formae-plugin-azure)
 - [gcp](https://github.com/platform-engineering-labs/formae-plugin-gcp)
-- [k8s](https://github.com/platform-engineering-labs/formae-plugin-kubernetes)
 - [auth-basic](https://github.com/platform-engineering-labs/formae-plugin-auth-basic)
 
 ## Why this exists next to `standard`
 
-Its contents are currently identical to [`standard`](https://github.com/platform-engineering-labs/formae-plugin-standard), and that is deliberate rather than an oversight.
+This bundle excludes Kubernetes while broker-backed OIDC authentication is being implemented in the Kubernetes plugin. AWS, Azure, GCP and auth-basic remain included. The self-hosted [`standard`](https://github.com/platform-engineering-labs/formae-plugin-standard) bundle is managed independently.
 
 Hosted installations cannot install plugins on demand: plugins ride the agent image. The set they run is therefore a product decision, and it should be able to change without changing what self-hosted users get when they run `formae plugin install standard`. Keeping the two bundles separate is what makes that possible. This one is the hosted set; the other is the open-source default.
 
-**Do not delete this as duplication.** The duplication is the point.
+## Installing the hosted bundle
 
-## Nothing installs it yet
+Install `standard-cloud` to select the hosted plugin set. Member dependencies
+are pinned to exact versions so a given bundle release has a reproducible set.
+Explicit plugin overrides can be applied after the bundle when needed.
 
-This package is published, and no image installs it.
-
-`ANY` requirements re-resolve at install time. Installing this bundle on top of an image that already carries `standard` upgrades any member with a newer release in the channel, which makes the resulting image's contents a function of the date it was built rather than of its declared inputs. That is measurable: installing an overlapping metapackage over a base image upgraded `k8s` from 0.1.9 to 0.1.10 while leaving explicitly pinned plugins alone.
-
-When the hosted set actually diverges from `standard`, the shape to adopt is `EQ`-pinned member requirements rather than `ANY`, ordered ahead of any explicit per-plugin pins. That resolves deterministically and makes this file the single declarative statement of what hosted runs. Until then, cloud-only plugins are added as explicit pins alongside the base image's bundle.
+Installing a metapackage does not uninstall packages inherited from another
+bundle. An image switching from `standard` must also remove that metapackage
+and any excluded plugins; updating this bundle alone does not change existing
+installations.
 
 ## What reads this
 
