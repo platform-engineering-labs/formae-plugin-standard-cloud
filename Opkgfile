@@ -19,7 +19,7 @@ description = "Metapackage that pulls in the plugin set available on hosted form
 
 requirements = new Listing<requirement.Requirement> {
   new { name = "formae"     method = "depends" operator = "GTE" version = semver.Version("0.90.2") }
-  new { name = "aws"        method = "depends" operator = "EQ" version = semver.Version("0.1.18") }
+  new { name = "aws"        method = "depends" operator = "EQ" version = semver.Version("0.1.19") }
   new { name = "azure"      method = "depends" operator = "EQ" version = semver.Version("0.1.15") }
   new { name = "gcp"        method = "depends" operator = "EQ" version = semver.Version("0.1.18") }
   new { name = "k8s"        method = "depends" operator = "EQ" version = semver.Version("0.1.13") }
